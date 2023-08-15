@@ -1,24 +1,24 @@
-## Autenticação 2fa Backend
+# Autenticação 2fa Backend
 
-### Fluxo da implementação
+## :nerd_face: Fluxo da implementação
 
-#### Register
+### Register
 
 - Registra o user e gera uma secret com a biblioteca speakeasy;
 - Retorna o qrcode, user e message de sucesso;
 
-#### Login
+### Login
 
 - Verifica se o email e senha estão válidos;
 - Verifica se o secret é válida;
 - Verifica se o token é válido;
 - Retorna o token e message de sucesso;
 
-### Fluxo da aplicação :rocket:
+## :rocket: Fluxo da aplicação
 
-#### Register
+### Register
 
-**Exemplo**
+**Exemplo:**
 
 ```json
 {
@@ -28,9 +28,9 @@
 }
 ```
 
-#### Login
+### Login
 
-**Exemplo**
+**Exemplo:**
 
 ```json
 {
@@ -40,10 +40,11 @@
 }
 ```
 
-### Configuração
+## :wave: Configuração
 
-Crie um arquivo .env
-**Examplo**
+#### Crie um arquivo .env
+
+**Exemplo:**
 
 ```
 # Environment variables declared in this file are automatically made available to Prisma.
@@ -55,9 +56,9 @@ Crie um arquivo .env
 DATABASE_URL="postgresql://postgres:123456@localhost:5435/auth-2fa?schema=public"
 ```
 
-### Execução
+## :muscle: Execução
 
-Execute
+#### Execute
 
 ```bash
 npm i
@@ -65,13 +66,13 @@ npm i
 
 Tenha o docker instalado na sua máquina, para a execução do container do banco de dados
 
-Criar o container do banco de dados da aplicação
+#### Criar o container do banco de dados da aplicação
 
 ```bash
 docker compose up
 ```
 
-Starta a aplicação
+#### Starta a aplicação
 
 ```bash
 npm run dev
