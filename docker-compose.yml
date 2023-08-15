@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:10.3
+    restart: always
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      PORT: 9090
+      POSTGRES_USER: postgres
+      POSTGRES_DB: auth-2fa
+      POSTGRES_PASSWORD: 123456
+      PGPORT: 5434
+    ports:
+      - '5435:5434'
+    expose:
+      - '5435'
+volumes:
+  postgres:
