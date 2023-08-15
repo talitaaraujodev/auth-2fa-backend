@@ -1,7 +1,7 @@
 {
-  "name": "auth-2fa",
+  "name": "auth-2fa-backend",
   "version": "1.0.0",
-  "description": "Projeto de estudo afim de implementar a autenticação de 2fa",
+  "description": "Projeto de estudo afim de implementar a autenticação de 2fa backend",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
