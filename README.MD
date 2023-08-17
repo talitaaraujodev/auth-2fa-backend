@@ -54,6 +54,7 @@
 # See the documentation for all the connection string options: https://pris.ly/d/connection-strings
 
 DATABASE_URL="postgresql://postgres:123456@localhost:5435/auth-2fa?schema=public"
+MFA_AUTHENTICATION_APP_NAME = 'AUTH2FA.NET'
 ```
 
 ## :muscle: Execução
@@ -65,6 +66,12 @@ npm i
 ```
 
 Tenha o docker instalado na sua máquina, para a execução do container do banco de dados
+
+#### Execute as migrations do prism
+
+```bash
+npx prisma migrate dev
+```
 
 #### Criar o container do banco de dados da aplicação
 

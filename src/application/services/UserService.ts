@@ -25,7 +25,9 @@ export class UserService implements UserServiceInputPort {
     if (emailExists) {
       throw new Error('E-mail já existente');
     }
-    const secret: any = speakeasy.generateSecret();
+    const secret: any = speakeasy.generateSecret({
+      name: process.env.MFA_AUTHENTICATION_APP_NAME,
+    });
     const userCreated = new User(
       uuid(),
       user.name,
