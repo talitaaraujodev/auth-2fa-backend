@@ -54,7 +54,9 @@ export class UserService implements UserServiceInputPort {
       window: 1,
     });
     if (!verifiedToken) {
-      throw new Error('Código inválido');
+      throw new BadRequestError('BadRequestError', [
+        { code: 'Código inválido' },
+      ]);
     }
     const userCreated = new User(
       uuid(),
