@@ -5,6 +5,8 @@ import speakeasy from 'speakeasy';
 import { UserPersistenceOutputPort } from '../output/UserPersistenceOutputPort';
 import { InjectionTokens } from '../../utils/types/InjectionTokens';
 import { AuthServiceInputPort } from '../input/AuthServiceInputPort';
+import { authSchema } from '../../utils/validators/authValidator';
+import { BadRequestError } from '../../utils/errors/BadRequestError';
 
 @injectable()
 export class AuthService implements AuthServiceInputPort {
@@ -16,13 +18,19 @@ export class AuthService implements AuthServiceInputPort {
   async auth(email: string, password: string, token: string): Promise<string> {
     const user = await this.userPersistence.findByEmail(email);
     if (user) {
-      const isPasswordValid = compareSync(password, user.password);
       const verifiedToken = speakeasy.totp.verify({
         secret: user.secret,
         encoding: 'base32',
         token,
         window: 1,
       });
+      if (!verifiedToken) {
+        throw new BadRequestError('BadRequestError', [
+          { code: 'Código inválido.' },
+        ]);
+      }
+
+      const isPasswordValid = compareSync(password, user.password);
       if (isPasswordValid) {
         return jwt.sign(
           { sub: user.id, email: user.email, name: user.name },
@@ -32,10 +40,9 @@ export class AuthService implements AuthServiceInputPort {
           },
         ) as string;
       }
-      if (!verifiedToken) {
-        throw new Error('Código inválido');
-      }
     }
-    throw new Error('E-mail ou senha inválidos');
+    throw new BadRequestError('BadRequestError', [
+      { error: 'Credenciais inválidas.' },
+    ]);
   }
 }
