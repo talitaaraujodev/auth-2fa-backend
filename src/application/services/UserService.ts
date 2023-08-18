@@ -20,34 +20,34 @@ export class UserService implements UserServiceInputPort {
     private readonly userPersistence: UserPersistenceOutputPort,
   ) {}
 
-  async create(user: User): Promise<OutputCreateUserDto> {
+  async create(user: User, code: string): Promise<OutputCreateUserDto> {
     const emailExists = await this.userPersistence.findByEmail(user.email);
     if (emailExists) {
       throw new Error('E-mail já existente');
     }
-    const secret: any = speakeasy.generateSecret({
-      name: process.env.MFA_AUTHENTICATION_APP_NAME,
+
+    const verifiedToken = speakeasy.totp.verify({
+      secret: user.secret,
+      encoding: 'base32',
+      token: code,
+      window: 1,
     });
+    if (!verifiedToken) {
+      throw new Error('Código inválido');
+    }
     const userCreated = new User(
       uuid(),
       user.name,
       user.email,
       user.password,
-      secret.base32,
+      user.secret,
     );
 
     await userCreated.encryptPassword();
     const userSaved = await this.userPersistence.create(userCreated);
 
-    const toDataURL = promisify(qrcode.toDataURL);
-    const qrCode = await toDataURL(secret.otpauth_url);
-
-    if (!qrCode) {
-      throw new Error('Erro ao gerar qrCode');
-    }
     return {
       user: userSaved,
-      qrCode: qrCode,
     };
   }
   async findAll(): Promise<OutputListUserDto> {

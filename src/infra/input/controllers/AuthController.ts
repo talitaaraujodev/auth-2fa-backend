@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
 import { inject, injectable } from 'tsyringe';
+
 import { InjectionTokens } from '../../../utils/types/InjectionTokens';
 import { AuthServiceInputPort } from '../../../application/input/AuthServiceInputPort';
+import { promisify } from 'util';
 
 @injectable()
 export class AuthController {
