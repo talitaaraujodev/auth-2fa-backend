@@ -4,8 +4,9 @@
 
 ### Register
 
-- Registra o user e gera uma secret com a biblioteca speakeasy;
-- Retorna o qrcode, user e message de sucesso;
+- Gera uma secret;
+- Retorna o qrcode e a secret;
+- Registra o user passando a secret gerada e o token para fazer a validação com a biblioteca speakeasy;
 
 ### Login
 
@@ -24,7 +25,9 @@
 {
   "name": "test",
   "email": "test@gmail.com",
-  "password": "test123456"
+  "password": "test123456",
+  "secret": "secret",
+  "token": "234567"
 }
 ```
 
