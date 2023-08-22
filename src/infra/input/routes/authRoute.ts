@@ -18,9 +18,9 @@ container.register(InjectionTokens.AUTH_CONTROLLER, {
 });
 
 const authRoutes = Router();
-const authController: AuthController = container.resolve('UserController');
+const authController: AuthController = container.resolve('AuthController');
 
-authRoutes.get('/login', async (request: Request, response: Response) => {
+authRoutes.post('/login', async (request: Request, response: Response) => {
   return await authController.auth(request, response);
 });
 

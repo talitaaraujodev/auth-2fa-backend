@@ -1,7 +1,6 @@
 import { inject, injectable } from 'tsyringe';
 import speakeasy from 'speakeasy';
 import { v4 as uuid } from 'uuid';
-import qrcode from 'qrcode';
 import { User } from '../../domain/models/User';
 import { UserServiceInputPort } from '../input/UserServiceInputPort';
 import {
@@ -10,8 +9,10 @@ import {
 } from '../input/dto/GetUserDto';
 import { UserPersistenceOutputPort } from '../output/UserPersistenceOutputPort';
 import { InjectionTokens } from '../../utils/types/InjectionTokens';
-import { promisify } from 'util';
 import { OutputCreateUserDto } from '../input/dto/CreateUserDto';
+import { userSchema } from '../../utils/validators/userValidator';
+import { BadRequestError } from '../../utils/errors/BadRequestError';
+import { NotFoundError } from '../../utils/errors/NotFoundError';
 
 @injectable()
 export class UserService implements UserServiceInputPort {
@@ -20,32 +21,56 @@ export class UserService implements UserServiceInputPort {
     private readonly userPersistence: UserPersistenceOutputPort,
   ) {}
 
-  async create(user: User): Promise<OutputCreateUserDto> {
+  async create(user: User, code: string): Promise<OutputCreateUserDto> {
     const emailExists = await this.userPersistence.findByEmail(user.email);
     if (emailExists) {
-      throw new Error('E-mail já existente');
+      let errors: Array<object> = [{}];
+      (errors[0] as { [key: string]: any })['email'] =
+        'Usuário já é existente por e-mail';
+
+      throw new NotFoundError('NotFoundError', errors);
     }
-    const secret: any = speakeasy.generateSecret();
+    const { error } = userSchema.validate({
+      name: user.name,
+      email: user.email,
+      password: user.password,
+      secret: user.secret,
+      token: code,
+    });
+
+    if (error) {
+      let errors: any = {};
+      error.details.forEach((item) => {
+        errors[item.path[0]] = item.message;
+      });
+
+      throw new BadRequestError('BadRequestError', [errors]);
+    }
+
+    const verifiedToken = speakeasy.totp.verify({
+      secret: user.secret,
+      encoding: 'base32',
+      token: code,
+      window: 1,
+    });
+    if (!verifiedToken) {
+      throw new BadRequestError('BadRequestError', [
+        { code: 'Código inválido' },
+      ]);
+    }
     const userCreated = new User(
       uuid(),
       user.name,
       user.email,
       user.password,
-      secret.base32,
+      user.secret,
     );
 
     await userCreated.encryptPassword();
     const userSaved = await this.userPersistence.create(userCreated);
 
-    const toDataURL = promisify(qrcode.toDataURL);
-    const qrCode = await toDataURL(secret.otpauth_url);
-
-    if (!qrCode) {
-      throw new Error('Erro ao gerar qrCode');
-    }
     return {
       user: userSaved,
-      qrCode: qrCode,
     };
   }
   async findAll(): Promise<OutputListUserDto> {
@@ -63,7 +88,11 @@ export class UserService implements UserServiceInputPort {
   async findOne(id: string): Promise<OutputFindOneUserDto> {
     const user: User | null = await this.userPersistence.findById(id);
     if (!user) {
-      throw new Error('Usuário nào encontrado');
+      let errors: Array<object> = [{}];
+      (errors[0] as { [key: string]: any })['user'] =
+        'Usuário não encontrado por id.';
+
+      throw new NotFoundError('NotFoundError', errors);
     }
     return {
       user: {

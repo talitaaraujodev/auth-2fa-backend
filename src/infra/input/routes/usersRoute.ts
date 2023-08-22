@@ -29,5 +29,8 @@ usersRoutes.get('/users/:id', async (request: Request, response: Response) => {
 usersRoutes.post('/users', async (request: Request, response: Response) => {
   return await userController.create(request, response);
 });
+usersRoutes.get('/mfa', async (request: Request, response: Response) => {
+  return await userController.generateMFAAuthenticationCode(request, response);
+});
 
 export { usersRoutes };
