@@ -16,8 +16,28 @@ export class AuthService implements AuthServiceInputPort {
   ) {}
 
   async auth(email: string, password: string, token: string): Promise<string> {
+    const { error } = authSchema.validate({
+      email: email,
+      password: password,
+      token: token,
+    });
+
+    if (error) {
+      let errors: any = {};
+      error.details.forEach((item) => {
+        errors[item.path[0]] = item.message;
+      });
+
+      throw new BadRequestError('BadRequestError', [errors]);
+    }
     const user = await this.userPersistence.findByEmail(email);
     if (user) {
+      const isPasswordValid = compareSync(password, user.password);
+      if (!isPasswordValid) {
+        throw new BadRequestError('BadRequestError', [
+          { error: 'Email e/o senha inválidos.' },
+        ]);
+      }
       const verifiedToken = speakeasy.totp.verify({
         secret: user.secret,
         encoding: 'base32',
@@ -29,20 +49,16 @@ export class AuthService implements AuthServiceInputPort {
           { code: 'Código inválido.' },
         ]);
       }
-
-      const isPasswordValid = compareSync(password, user.password);
-      if (isPasswordValid) {
-        return jwt.sign(
-          { sub: user.id, email: user.email, name: user.name },
-          'secret',
-          {
-            expiresIn: '5m',
-          },
-        ) as string;
-      }
+      return jwt.sign(
+        { sub: user.id, email: user.email, name: user.name },
+        process.env.JWT_SECRET || 'secret',
+        {
+          expiresIn: process.env.JWT_EXPIRE_IN || '15m',
+        },
+      ) as string;
     }
     throw new BadRequestError('BadRequestError', [
-      { error: 'Credenciais inválidas.' },
+      { error: 'Email e/o senha inválidos.' },
     ]);
   }
 }

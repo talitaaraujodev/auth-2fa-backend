@@ -5,20 +5,20 @@ export const userSchema = Joi.object({
     .min(3)
     .max(60)
     .required()
-    .messages({ 'any.required': 'Nome é um campo obrigatório.' }),
+    .messages({ 'string.empty': 'Nome é um campo obrigatório.' }),
   email: Joi.string().email().required().messages({
-    'any.required': 'E-mail é um campo obrigatório.',
+    'string.empty': 'E-mail é um campo obrigatório.',
     'string.email': 'Formato do e-mail é inválido.',
   }),
   password: Joi.string()
     .min(6)
     .max(40)
     .required()
-    .messages({ 'any.required': 'Senha é um campo obrigatório.' }),
+    .messages({ 'string.empty': 'Senha é um campo obrigatório.' }),
   secret: Joi.string()
     .required()
-    .messages({ 'any.required': 'Secret é um campo obrigatório.' }),
+    .messages({ 'string.empty': 'Secret é um campo obrigatório.' }),
   token: Joi.string()
     .required()
-    .messages({ 'any.required': 'Código é um campo obrigatório.' }),
+    .messages({ 'string.empty': 'Código é um campo obrigatório.' }),
 });

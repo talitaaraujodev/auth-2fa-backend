@@ -26,7 +26,7 @@ export class UserService implements UserServiceInputPort {
     if (emailExists) {
       let errors: Array<object> = [{}];
       (errors[0] as { [key: string]: any })['email'] =
-        'Usuário já existente por e-mail';
+        'Usuário já é existente por e-mail';
 
       throw new NotFoundError('NotFoundError', errors);
     }
